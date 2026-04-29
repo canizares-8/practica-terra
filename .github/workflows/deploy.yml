@@ -1,0 +1,65 @@
+name: Terraform Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Desplegar infraestructura en LocalStack
+    runs-on: ubuntu-latest
+
+    services:
+      localstack:
+        image: localstack/localstack:3.0
+        ports:
+          - 4566:4566
+        env:
+          SERVICES: s3,ec2
+          DEFAULT_REGION: us-east-1
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.9
+
+      - name: Esperar a que LocalStack esté listo
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:4566/_localstack/health | grep -q '"s3": "available"\|"s3": "running"'; then
+              echo "LocalStack listo"
+              exit 0
+            fi
+            echo "Esperando a LocalStack... intento $i"
+            sleep 2
+          done
+          echo "LocalStack no respondió a tiempo"
+          exit 1
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+      - name: Verificar recursos creados
+        run: |
+          echo "=== Buckets S3 ==="
+          aws --endpoint-url=http://localhost:4566 s3 ls
+          echo ""
+          echo "=== Instancias EC2 ==="
+          aws --endpoint-url=http://localhost:4566 ec2 describe-instances \
+            --query "Reservations[*].Instances[*].{ID:InstanceId,Type:InstanceType,State:State.Name}" \
+            --output table
+        env:
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_DEFAULT_REGION: us-east-1
