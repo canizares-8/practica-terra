@@ -1,0 +1,4 @@
+Notas de la práctica de Terraform
+linea nueva
+otra linea mas
+y otra mas
