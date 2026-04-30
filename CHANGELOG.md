@@ -4,6 +4,12 @@ Todos los cambios importantes de esta práctica de Terraform se documentan aquí
 
 El formato sigue el estilo de [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el versionado [Semantic Versioning](https://semver.org/lang/es/).
 
+## [v1.1] - 2026-04-30
+
+### Añadido
+- Segunda llamada al módulo `mi-recurso` creando el bucket `bucket-desde-modulo-dos`.
+- Demuestra la reutilización del módulo con distinto valor en la variable `bucket_name`.
+
 ## [v1.0] - 2026-04-29
 
 ### Añadido

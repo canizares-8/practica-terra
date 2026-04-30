@@ -40,3 +40,7 @@ module "mi_bucket_modulo" {
   source      = "./modules/mi-recurso"
   bucket_name = "bucket-desde-modulo"
 }
+module "mi_bucket_modulo_dos" {
+  source      = "./modules/mi-recurso"
+  bucket_name = "bucket-desde-modulo-dos"
+}
